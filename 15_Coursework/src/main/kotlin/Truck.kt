@@ -38,7 +38,7 @@ fun createArrivingCargo(maxLoadCapacity: Int): MutableList<Product> {
                 cargo.add(nextProduct)
         }
     }
-    cargo.sortBy { it.loadingTime }
-    cargo.reverse()
+    cargo.sortBy { it.loadingTime } // эти две строки, располагают быстроразгружаемые товары ближе к выходу,
+    cargo.reverse() // чтобы грузчикам было удобнее :)
     return cargo
 }
