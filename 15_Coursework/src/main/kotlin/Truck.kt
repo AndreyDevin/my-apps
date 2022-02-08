@@ -33,7 +33,7 @@ fun createArrivingCargo(maxLoadCapacity: Int): MutableList<Product> {
     while (maxLoadCapacity - totalCargoWeight > 0) {
         val nextProduct = ProductList.productList[(0 until ProductList.productList.size).random()]
         if (nextProduct.food == cargo.first().food && nextProduct.breakingCargo == cargo.first().breakingCargo) {
-                if (maxLoadCapacity - totalCargoWeight - nextProduct.weight < 0) break
+                if (maxLoadCapacity < totalCargoWeight + nextProduct.weight) break
                 totalCargoWeight += nextProduct.weight
                 cargo.add(nextProduct)
         }
