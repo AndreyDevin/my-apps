@@ -71,6 +71,7 @@ class DistributionCenter(
     }
 
     //функция разгрузки канала грузовиков, который приходит из fun main
+    //Каждый порт разгрузки работает в своей корутине, изначально в него помещен null
     suspend fun unloadingPort(trucksChannel: ReceiveChannel<Truck>) = coroutineScope {
         repeat(numberOfUnloadingPorts) {
             launch {
@@ -125,12 +126,12 @@ class DistributionCenter(
         val randomProduct: Product = ProductList.productList[(0 until ProductList.productList.size).random()]
         var firstRandomCargo: Product? = null
         while (firstRandomCargo == null) {
-            firstRandomCargo = getProductFromStorage(randomProduct)
-            delay(100)
+            firstRandomCargo = getProductFromStorage(randomProduct) //пытаемся получить со склада первый случайный товар
+            delay(100) //если этого товара пока нет на складе, ждем 0,1 сек
         }
         truck.cargo.add(firstRandomCargo)
         delay(truck.cargo.first().loadingTime)
-
+//загрузили первый товар, далее будем заполнять грузовик такими же товарами
         var totalCargoWeight = truck.cargo.first().weight
         while (truck.maxLoadCapacity > totalCargoWeight) {
             val nextProduct = getProductFromStorage(truck.cargo.first())
@@ -140,7 +141,7 @@ class DistributionCenter(
                 totalCargoWeight += nextProduct.weight
                 truck.cargo.add(nextProduct)
                 delay(nextProduct.loadingTime)
-            } else delay(1000)
+            } else delay(1000) //если товар закончился на складе, ждем 1 сек, может подвезут...
         }
         return truck.cargo
     }
