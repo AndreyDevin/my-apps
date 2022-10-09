@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">M16 Marsgram</string>
+    <string name="rover">Rover:</string>
+    <string name="date">Date:</string>
+    <string name="array_sol">Array sol\nin manifest:</string>
+    <string name="spirit">Spirit</string>
+    <string name="opportunity">Opportunity</string>
+    <string name="curiosity">Curiosity</string>
+    <string name="mars_day_nof_mission">Mars day\nof mission:</string>
+    <string name="max_sol">\nmax_sol</string>
+    <string name="manifestMission">Manifest Mission</string>
+    <string name="sol">Sol:</string>
+    <string name="selected_camera">Selected camera:</string>
+    <string name="select_photos_param">(Push to select)</string>
+    <string name="rover_sol_camera">Rover: Sol: Camera</string>
+</resources>
