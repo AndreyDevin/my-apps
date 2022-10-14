@@ -3,7 +3,20 @@ import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
-
+enum class Pidor(val _name: String) {
+    GEERONIMO("Geeronimo"),
+    ANTON("АнтонГурьянов"),
+    PAKER("РоманЛюбушин"),
+    NAZAR("Nazar"),
+    KORZH("korgelie"),
+    ATR("АлександрАтр"),
+    DUKE("Дюк"),
+    KARABAS("Kapa6ac18"),
+    PARAMON("godhedin"),
+    BUR("SergeyBurenkov"),
+    OLEG("Olegvodeniktov"),
+    BELOV("seryibelyi")
+}
 fun main() {
     val botsApi = TelegramBotsApi(DefaultBotSession()::class.java)
     botsApi.registerBot(SansaraAssistBot())
@@ -33,52 +46,24 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         val text = update.message.text.filterNot { it == ' '|| it == '—' }
         val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
         val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
-        val onlyCount: MutableList<String> = mutableListOf()
 
         pidorOfDay.keys.forEach { pidor ->
-            onlyNameAndCount.map {
+            onlyNameAndCount.forEach {
                 if (it.contains(Regex(pidor._name))) {
-                    onlyCount += it.replace(pidor._name, "")
+                    val onlyCount = it.replace(pidor._name, "")
+                    pidorOfDay[pidor] = pidorOfDay[pidor]!! + onlyCount.toInt()
                 }
             }
         }
 
-        val messageText = onlyCount.toString()
+        val messageText = pidorOfDay.toString()
 
-        //val new2 = newList.map { "%s".format(it) }
-        //var formatTemplate = "%-2s\t%s"
-        //it.split(" - ")
-
-        //val array = text.split('\n')
-
-        /*val reg = "\n"
-        val listString: MutableList<String> = mutableListOf()
-        val foundString = reg.toRegex().findAll(text)
-for (item in foundString) {
-listString.add(item.groupValues[1])}*/
-        //messageText = listString[0]
-
-        if (text == "/start") {
-            val message = SendMessage()
-            message.setChatId(update.message.chatId)
-            message.text = update.message.messageId.toString()
-            execute(message)
-        }
         val message = SendMessage()
         message.setChatId(update.message.chatId)
         message.text = messageText
         execute(message)
     }
 }
-//val reg = “.+ - (\d)\n”
-//val listNum: MutableList<Int> = mutableListOf()
-//val foundNum = reg.toRegex.findAll(string)
-//for (item in foundNum) {
-//listNum.add(item.groupValues[1].toInt)}
-
-
-//string.split("-")[1].toInt()
-//pidorstats@SublimeBot
 /*
 Топ-10 пидоров за текущий год:
 
@@ -95,20 +80,29 @@ listString.add(item.groupValues[1])}*/
 
 Всего участников — 12
 */
+
+//val reg = “.+ - (\d)\n”
+//val listNum: MutableList<Int> = mutableListOf()
+//val foundNum = reg.toRegex.findAll(string)
+//for (item in foundNum) {
+//listNum.add(item.groupValues[1].toInt)}
+
+
+//string.split("-")[1].toInt()
+//pidorstats@SublimeBot
+
 //if (inputText.contains(Regex("""[^-\w]|\d|^-|-$|_""")) || inputText.isEmpty()) toast()
 //            else viewModel.onAddBtn(inputText)
 
-enum class Pidor(val _name: String) {
-    GEERONIMO("Geeronimo"),
-    ANTON("АнтонГурьянов"),
-    PAKER("РоманЛюбушин"),
-    NAZAR("Nazar"),
-    KORZH("korgelie"),
-    ATR("АлександрАтр"),
-    DUKE("Дюк"),
-    KARABAS("Kapa6ac18"),
-    PARAMON("godhedin"),
-    BUR("SergeyBurenkov"),
-    OLEG("Olegvodeniktov"),
-    BELOV("seryibelyi")
-}
+//val new2 = newList.map { "%s".format(it) }
+//var formatTemplate = "%-2s\t%s"
+//it.split(" - ")
+
+//val array = text.split('\n')
+
+/*val reg = "\n"
+val listString: MutableList<String> = mutableListOf()
+val foundString = reg.toRegex().findAll(text)
+for (item in foundString) {
+listString.add(item.groupValues[1])}*/
+//messageText = listString[0]
