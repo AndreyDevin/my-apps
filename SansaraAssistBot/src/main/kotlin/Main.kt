@@ -33,16 +33,21 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         val text = update.message.text.filterNot { it == ' '|| it == '—' }
         val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
         val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
+        val onlyCount: MutableList<String> = mutableListOf()
+
+        pidorOfDay.keys.forEach { pidor ->
+            onlyNameAndCount.map {
+                if (it.contains(Regex(pidor._name))) {
+                    onlyCount += it.replace(pidor._name, "")
+                }
+            }
+        }
+
+        val messageText = onlyCount.toString()
 
         //val new2 = newList.map { "%s".format(it) }
         //var formatTemplate = "%-2s\t%s"
-
         //it.split(" - ")
-
-
-        var messageText = ""
-        //messageText = listString.toString()
-        messageText = onlyNameAndCount.toString()
 
         //val array = text.split('\n')
 
@@ -93,13 +98,13 @@ listString.add(item.groupValues[1])}*/
 //if (inputText.contains(Regex("""[^-\w]|\d|^-|-$|_""")) || inputText.isEmpty()) toast()
 //            else viewModel.onAddBtn(inputText)
 
-enum class Pidor(name: String) {
+enum class Pidor(val _name: String) {
     GEERONIMO("Geeronimo"),
-    ANTON("Антон Гурьянов"),
-    PAKER("Iam32go"),
+    ANTON("АнтонГурьянов"),
+    PAKER("РоманЛюбушин"),
     NAZAR("Nazar"),
     KORZH("korgelie"),
-    ATR("Aleksandr_Atr"),
+    ATR("АлександрАтр"),
     DUKE("Дюк"),
     KARABAS("Kapa6ac18"),
     PARAMON("godhedin"),
