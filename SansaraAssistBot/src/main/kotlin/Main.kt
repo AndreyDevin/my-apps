@@ -3,6 +3,7 @@ import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
+
 enum class Pidor(val _name: String) {
     GEERONIMO("Geeronimo"),
     ANTON("АнтонГурьянов"),
@@ -17,6 +18,7 @@ enum class Pidor(val _name: String) {
     OLEG("Olegvodeniktov"),
     BELOV("seryibelyi")
 }
+
 fun main() {
     val botsApi = TelegramBotsApi(DefaultBotSession()::class.java)
     botsApi.registerBot(SansaraAssistBot())
@@ -27,22 +29,23 @@ class SansaraAssistBot : TelegramLongPollingBot() {
 
     override fun getBotUsername() = "SansaraAssistBot"
 
-    val pidorOfDay: MutableMap<Pidor, Int> = mutableMapOf(
-        Pidor.GEERONIMO to 29,
-        Pidor.ANTON to 25,
-        Pidor.PAKER to 25,
-        Pidor.NAZAR to 24,
-        Pidor.KORZH to 24,
-        Pidor.ATR to 22,
-        Pidor.DUKE to 21,
-        Pidor.KARABAS to 20,
-        Pidor.PARAMON to 20,
-        Pidor.BUR to 20,
-        Pidor.OLEG to 19,
-        Pidor.BELOV to 19
-    )
-
     override fun onUpdateReceived(update: Update) {
+
+        val pidorOfDay: MutableMap<Pidor, Int> = mutableMapOf(
+            Pidor.GEERONIMO to 29,
+            Pidor.ANTON to 25,
+            Pidor.PAKER to 25,
+            Pidor.NAZAR to 24,
+            Pidor.KORZH to 24,
+            Pidor.ATR to 22,
+            Pidor.DUKE to 21,
+            Pidor.KARABAS to 20,
+            Pidor.PARAMON to 20,
+            Pidor.BUR to 20,
+            Pidor.OLEG to 19,
+            Pidor.BELOV to 19
+        )
+
         val text = update.message.text.filterNot { it == ' '|| it == '—' }
         val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
         val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
@@ -57,52 +60,9 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         }
 
         val messageText = pidorOfDay.toString()
-
         val message = SendMessage()
         message.setChatId(update.message.chatId)
         message.text = messageText
         execute(message)
     }
 }
-/*
-Топ-10 пидоров за текущий год:
-
-1. Geeronimo — 29 раз(а)
-2. Роман Любушин — 25 раз(а)
-3. Антон Гурьянов — 25 раз(а)
-4. Nazar — 24 раз(а)
-5. korgelie — 24 раз(а)
-6. Александр Атр — 22 раз(а)
-7. Дюк — 21 раз(а)
-8. Kapa6ac18 — 20 раз(а)
-9. godhedin — 20 раз(а)
-10. SergeyBurenkov — 20 раз(а)
-
-Всего участников — 12
-*/
-
-//val reg = “.+ - (\d)\n”
-//val listNum: MutableList<Int> = mutableListOf()
-//val foundNum = reg.toRegex.findAll(string)
-//for (item in foundNum) {
-//listNum.add(item.groupValues[1].toInt)}
-
-
-//string.split("-")[1].toInt()
-//pidorstats@SublimeBot
-
-//if (inputText.contains(Regex("""[^-\w]|\d|^-|-$|_""")) || inputText.isEmpty()) toast()
-//            else viewModel.onAddBtn(inputText)
-
-//val new2 = newList.map { "%s".format(it) }
-//var formatTemplate = "%-2s\t%s"
-//it.split(" - ")
-
-//val array = text.split('\n')
-
-/*val reg = "\n"
-val listString: MutableList<String> = mutableListOf()
-val foundString = reg.toRegex().findAll(text)
-for (item in foundString) {
-listString.add(item.groupValues[1])}*/
-//messageText = listString[0]
