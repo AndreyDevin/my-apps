@@ -17,24 +17,32 @@ class SansaraAssistBot : TelegramLongPollingBot() {
     val pidorOfDay: MutableMap<Pidor, Int> = mutableMapOf(
         Pidor.GEERONIMO to 29,
         Pidor.ANTON to 25,
-        Pidor.PAKER to 24,
-        Pidor.NAZAR to 23,
-        Pidor.KORZH to 23,
+        Pidor.PAKER to 25,
+        Pidor.NAZAR to 24,
+        Pidor.KORZH to 24,
         Pidor.ATR to 22,
-        Pidor.DUKE to 20,
-        Pidor.KARABAS to 19,
-        Pidor.PARAMON to 19,
-        Pidor.BUR to 19,
-        Pidor.OLEG to 18,
-        Pidor.BELOV to 18
+        Pidor.DUKE to 21,
+        Pidor.KARABAS to 20,
+        Pidor.PARAMON to 20,
+        Pidor.BUR to 20,
+        Pidor.OLEG to 19,
+        Pidor.BELOV to 19
     )
 
     override fun onUpdateReceived(update: Update) {
-        val text = update.message.text
+        val text = update.message.text.filterNot { it == ' '|| it == '—' }
         val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
+        val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
+
+        //val new2 = newList.map { "%s".format(it) }
+        //var formatTemplate = "%-2s\t%s"
+
+        //it.split(" - ")
+
 
         var messageText = ""
-        messageText = listString.toString()
+        //messageText = listString.toString()
+        messageText = onlyNameAndCount.toString()
 
         //val array = text.split('\n')
 
@@ -69,15 +77,16 @@ listString.add(item.groupValues[1])}*/
 /*
 Топ-10 пидоров за текущий год:
 
-1. seryibelyi — 6 раз(а)
-2. Дюк — 2 раз(а)
-3. SergeyBurenkov — 2 раз(а)
-4. Geeronimo — 2 раз(а)
-5. Olegvodeniktov — 2 раз(а)
-6. Nazar — 2 раз(а)
-7. korgelie — 2 раз(а)
-8. Антон Гурьянов — 1 раз(а)
-9. Kapa6ac18 — 1 раз(а)
+1. Geeronimo — 29 раз(а)
+2. Роман Любушин — 25 раз(а)
+3. Антон Гурьянов — 25 раз(а)
+4. Nazar — 24 раз(а)
+5. korgelie — 24 раз(а)
+6. Александр Атр — 22 раз(а)
+7. Дюк — 21 раз(а)
+8. Kapa6ac18 — 20 раз(а)
+9. godhedin — 20 раз(а)
+10. SergeyBurenkov — 20 раз(а)
 
 Всего участников — 12
 */
