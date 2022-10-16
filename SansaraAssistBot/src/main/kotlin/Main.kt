@@ -59,7 +59,18 @@ class SansaraAssistBot : TelegramLongPollingBot() {
             }
         }
 
-        val messageText = pidorOfDay.toString()
+        val sortedList = pidorOfDay.toList()
+            .sortedBy { (key, value) -> value }
+            .reversed()
+            .toMap()
+
+        val stringBuilding = StringBuilder()
+        stringBuilding.append("Топ-10 пидоров за текущий год:\n\n")
+        var i = 1
+        sortedList.forEach { (key, value) -> stringBuilding.append("${i++}. $key — $value\n")}
+        stringBuilding.append("\n\nВсего участников — ${pidorOfDay.size}")
+
+        val messageText = stringBuilding.toString()
         val message = SendMessage()
         message.setChatId(update.message.chatId)
         message.text = messageText
