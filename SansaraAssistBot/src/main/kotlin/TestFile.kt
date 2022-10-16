@@ -1,7 +1,7 @@
 import java.time.LocalDate
 import kotlin.random.Random
 
-val daysToNewYear = LocalDate.of(2022, 12, 31).dayOfYear - LocalDate.now().dayOfYear
+//val daysToNewYear = LocalDate.of(2022, 12, 31).dayOfYear - LocalDate.now().dayOfYear
 
 fun main() {
     val testSansaraAssistBot = TestSansaraAssistBot()
@@ -75,7 +75,7 @@ class TestSansaraAssistBot {
 
                 stringBuilding.append("${i++}. ${it.first} — ${it.second} $requiredNumberOfSpaces ${(it.third).toDouble()/10000} %\n")
             }
-            stringBuilding.append("\nВсего участников — ${Pidor.values().size}")
+            stringBuilding.append("\nВсего участников — ${sortedList.size}")
 
             println(stringBuilding)
         }

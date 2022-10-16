@@ -3,21 +3,10 @@ import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
+import java.time.LocalDate
+import kotlin.random.Random
 
-enum class Pidor(val _name: String) {
-    GEERONIMO("Geeronimo"),
-    ANTON("АнтонГурьянов"),
-    PAKER("РоманЛюбушин"),
-    NAZAR("Nazar"),
-    KORZH("korgelie"),
-    ATR("АлександрАтр"),
-    DUKE("Дюк"),
-    KARABAS("Kapa6ac18"),
-    PARAMON("godhedin"),
-    BUR("SergeyBurenkov"),
-    OLEG("Olegvodeniktov"),
-    BELOV("seryibelyi")
-}
+val daysToNewYear = LocalDate.of(2022, 12, 31).dayOfYear - LocalDate.now().dayOfYear
 
 fun main() {
     val botsApi = TelegramBotsApi(DefaultBotSession()::class.java)
@@ -29,48 +18,56 @@ class SansaraAssistBot : TelegramLongPollingBot() {
 
     override fun getBotUsername() = "SansaraAssistBot"
 
-    override fun onUpdateReceived(update: Update) {
-
-        val pidorOfDay: MutableMap<Pidor, Int> = mutableMapOf(
-            Pidor.GEERONIMO to 29,
-            Pidor.ANTON to 25,
-            Pidor.PAKER to 25,
-            Pidor.NAZAR to 24,
-            Pidor.KORZH to 24,
-            Pidor.ATR to 22,
-            Pidor.DUKE to 20,
-            Pidor.KARABAS to 20,
-            Pidor.PARAMON to 20,
-            Pidor.BUR to 20,
-            Pidor.OLEG to 20,
-            Pidor.BELOV to 20
+    override fun onUpdateReceived(update: Update?) {
+        val base: Array<Triple<String, Int, Int>> = arrayOf(
+            Triple("Geeronimo", 29, 0),
+            Triple("АнтонГурьянов", 25, 0),
+            Triple("РоманЛюбушин", 25, 0),
+            Triple("Nazar", 24, 0),
+            Triple("korgelie", 24, 0),
+            Triple("АлександрАтр", 22, 0),
+            Triple("Дюк", 20, 0),
+            Triple("Kapa6ac18", 20, 0),
+            Triple("godhedin", 20, 0),
+            Triple("SergeyBurenkov", 20, 0),
+            Triple("Olegvodeniktov", 20, 0),
+            Triple("seryibelyi", 20, 0)
         )
-//Топ-10 пидоров
-        val text = update.message.text.filterNot { it == ' ' || it == '—' }
+
+        val text = update!!.message.text.filterNot { it == ' ' || it == '—' }
 
         if (text.contains("Топ-10пидоров")) {
             val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
             val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
 
-            pidorOfDay.keys.forEach { pidor ->
-                onlyNameAndCount.forEach {
-                    if (it.contains(Regex(pidor._name))) {
-                        val onlyCount = it.replace(pidor._name, "")
-                        pidorOfDay[pidor] = pidorOfDay[pidor]!! + onlyCount.toInt()
+            base.forEach { pidor ->
+                onlyNameAndCount.forEach { string ->
+                    if (string.contains(Regex(pidor.first))) {
+                        val onlyCount = string.replace(pidor.first, "")
+                        val newCount = pidor.second + onlyCount.toInt()
+                        val i = base.indexOfFirst { pidor.first == it.first }
+                        base[i] = Triple(pidor.first, newCount, pidor.third)
                     }
                 }
             }
 
-            val sortedList = pidorOfDay.toList()
-                .sortedBy { (key, value) -> value }
+            val newBase = getPercent(base)
+
+            val sortedList = newBase
+                .sortedBy { it.second }
                 .reversed()
-                .toMap()
 
             val stringBuilding = StringBuilder()
-            stringBuilding.append("Топ-10 пидоров за текущий год:\n\n")
+            stringBuilding.append("Топ-10 пидоров за текущий год:  (осталось $daysToNewYear дней до НГ)\n                                                                         шансы на успех\n")
             var i = 1
-            sortedList.forEach { (key, value) -> stringBuilding.append("${i++}. ${key._name} — $value\n") }
-            stringBuilding.append("\nВсего участников — ${pidorOfDay.size}")
+            sortedList.forEach {
+                val stringText = "${it.first} — ${it.second}  ${(it.third).toDouble()/10000} %\n"
+                val requiredNumberOfSpaces = StringBuilder()
+                repeat(65 - stringText.length) { requiredNumberOfSpaces.append(" ") }
+
+                stringBuilding.append("${i++}. ${it.first} — ${it.second} $requiredNumberOfSpaces ${(it.third).toDouble()/10000} %\n")
+            }
+            stringBuilding.append("\nВсего участников — ${sortedList.size}")
 
             val messageText = stringBuilding.toString()
             val message = SendMessage()
@@ -78,5 +75,29 @@ class SansaraAssistBot : TelegramLongPollingBot() {
             message.text = messageText
             execute(message)
         }
+    }
+
+    private fun getPercent(base: Array<Triple<String, Int, Int>>): Array<Triple<String, Int, Int>> {
+
+        val winnerOfYearBase = base.clone()
+
+        repeat(1000000) {
+            val pidorOfYear = getPidorOfYear(base)
+            val i = winnerOfYearBase.indexOfFirst { it.first == pidorOfYear}
+            winnerOfYearBase[i] = Triple(winnerOfYearBase[i].first, winnerOfYearBase[i].second, winnerOfYearBase[i].third + 1)
+        }
+        return winnerOfYearBase
+    }
+
+    private fun getPidorOfYear(base: Array<Triple<String, Int, Int>>): String {
+
+        val baseClone = base.clone()
+
+        repeat(daysToNewYear) {
+            val x = Random.nextInt(0, baseClone.lastIndex+1)
+            baseClone[x] = Triple(baseClone[x].first, baseClone[x].second + 1, baseClone[x].third)
+        }
+        baseClone.sortBy { it.second }
+        return baseClone.last().first
     }
 }
