@@ -66,9 +66,15 @@ class TestSansaraAssistBot {
             //.toMap()
 
             val stringBuilding = StringBuilder()
-            stringBuilding.append("Топ-10 пидоров за текущий год:\n\n")
+            stringBuilding.append("Топ-10 пидоров за текущий год:\n                             шансы на успех\n")
             var i = 1
-            sortedList.forEach { stringBuilding.append("${i++}. ${it.first} — ${it.second}  (${it.third})\n") }
+            sortedList.forEach {
+                val stringText = "${it.first} — ${it.second}  ${(it.third).toDouble()/10000} %\n"
+                val requiredNumberOfSpaces = StringBuilder()
+                repeat(40 - stringText.length) { requiredNumberOfSpaces.append(" ") }
+
+                stringBuilding.append("${i++}. ${it.first} — ${it.second} $requiredNumberOfSpaces ${(it.third).toDouble()/10000} %\n")
+            }
             stringBuilding.append("\nВсего участников — ${Pidor.values().size}")
 
             println(stringBuilding)
