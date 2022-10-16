@@ -38,42 +38,45 @@ class SansaraAssistBot : TelegramLongPollingBot() {
             Pidor.NAZAR to 24,
             Pidor.KORZH to 24,
             Pidor.ATR to 22,
-            Pidor.DUKE to 21,
+            Pidor.DUKE to 20,
             Pidor.KARABAS to 20,
             Pidor.PARAMON to 20,
             Pidor.BUR to 20,
-            Pidor.OLEG to 19,
-            Pidor.BELOV to 19
+            Pidor.OLEG to 20,
+            Pidor.BELOV to 20
         )
+//Топ-10 пидоров
+        val text = update.message.text.filterNot { it == ' ' || it == '—' }
 
-        val text = update.message.text.filterNot { it == ' '|| it == '—' }
-        val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
-        val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
+        if (text.contains("Топ-10пидоров")) {
+            val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
+            val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
 
-        pidorOfDay.keys.forEach { pidor ->
-            onlyNameAndCount.forEach {
-                if (it.contains(Regex(pidor._name))) {
-                    val onlyCount = it.replace(pidor._name, "")
-                    pidorOfDay[pidor] = pidorOfDay[pidor]!! + onlyCount.toInt()
+            pidorOfDay.keys.forEach { pidor ->
+                onlyNameAndCount.forEach {
+                    if (it.contains(Regex(pidor._name))) {
+                        val onlyCount = it.replace(pidor._name, "")
+                        pidorOfDay[pidor] = pidorOfDay[pidor]!! + onlyCount.toInt()
+                    }
                 }
             }
+
+            val sortedList = pidorOfDay.toList()
+                .sortedBy { (key, value) -> value }
+                .reversed()
+                .toMap()
+
+            val stringBuilding = StringBuilder()
+            stringBuilding.append("Топ-10 пидоров за текущий год:\n\n")
+            var i = 1
+            sortedList.forEach { (key, value) -> stringBuilding.append("${i++}. ${key._name} — $value\n") }
+            stringBuilding.append("\nВсего участников — ${pidorOfDay.size}")
+
+            val messageText = stringBuilding.toString()
+            val message = SendMessage()
+            message.setChatId(update.message.chatId)
+            message.text = messageText
+            execute(message)
         }
-
-        val sortedList = pidorOfDay.toList()
-            .sortedBy { (key, value) -> value }
-            .reversed()
-            .toMap()
-
-        val stringBuilding = StringBuilder()
-        stringBuilding.append("Топ-10 пидоров за текущий год:\n\n")
-        var i = 1
-        sortedList.forEach { (key, value) -> stringBuilding.append("${i++}. $key — $value\n")}
-        stringBuilding.append("\n\nВсего участников — ${pidorOfDay.size}")
-
-        val messageText = stringBuilding.toString()
-        val message = SendMessage()
-        message.setChatId(update.message.chatId)
-        message.text = messageText
-        execute(message)
     }
 }
