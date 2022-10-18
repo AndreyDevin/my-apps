@@ -51,23 +51,16 @@ class SansaraAssistBot : TelegramLongPollingBot() {
                 }
             }
 
-            val newBase = getPercent(base)
-
-            val sortedList = newBase
+            val newBase = getBaseWithPercent(base)
                 .sortedBy { it.second }
                 .reversed()
 
             val stringBuilding = StringBuilder()
-            stringBuilding.append("Топ-10 пидоров за текущий год:  (осталось $daysToNewYear дней до НГ)\n                                                                         шансы на успех\n")
+            stringBuilding.append("Осталось $daysToNewYear дней до НГ, шансы на успех:\n\n")
             var i = 1
-            sortedList.forEach {
-                val stringText = "${it.first} — ${it.second}  ${(it.third).toDouble()/10000} %\n"
-                val requiredNumberOfSpaces = StringBuilder()
-                repeat(65 - stringText.length) { requiredNumberOfSpaces.append(" ") }
-
-                stringBuilding.append("${i++}. ${it.first} — ${it.second} $requiredNumberOfSpaces ${(it.third).toDouble()/10000} %\n")
+            newBase.forEach {
+                stringBuilding.append("${i++}. ${it.first} — ${it.second}   ${(it.third).toDouble()/10000} %\n")
             }
-            stringBuilding.append("\nВсего участников — ${sortedList.size}")
 
             val messageText = stringBuilding.toString()
             val message = SendMessage()
@@ -77,19 +70,19 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         }
     }
 
-    private fun getPercent(base: Array<Triple<String, Int, Int>>): Array<Triple<String, Int, Int>> {
+    private fun getBaseWithPercent(base: Array<Triple<String, Int, Int>>): Array<Triple<String, Int, Int>> {
 
-        val winnerOfYearBase = base.clone()
+        val baseWithPercent = base.clone()
 
         repeat(1000000) {
-            val pidorOfYear = getPidorOfYear(base)
-            val i = winnerOfYearBase.indexOfFirst { it.first == pidorOfYear}
-            winnerOfYearBase[i] = Triple(winnerOfYearBase[i].first, winnerOfYearBase[i].second, winnerOfYearBase[i].third + 1)
+            val winnerOfYear = getWinnerOfYear(base)
+            val i = baseWithPercent.indexOfFirst { it.first == winnerOfYear}
+            baseWithPercent[i] = Triple(baseWithPercent[i].first, baseWithPercent[i].second, baseWithPercent[i].third + 1)
         }
-        return winnerOfYearBase
+        return baseWithPercent
     }
 
-    private fun getPidorOfYear(base: Array<Triple<String, Int, Int>>): String {
+    private fun getWinnerOfYear(base: Array<Triple<String, Int, Int>>): String {
 
         val baseClone = base.clone()
 
@@ -97,7 +90,12 @@ class SansaraAssistBot : TelegramLongPollingBot() {
             val x = Random.nextInt(0, baseClone.lastIndex+1)
             baseClone[x] = Triple(baseClone[x].first, baseClone[x].second + 1, baseClone[x].third)
         }
+
         baseClone.sortBy { it.second }
-        return baseClone.last().first
+
+        val p1 = baseClone.last()
+        val p2 = baseClone[baseClone.size-2]
+        if (p1.second == p2.second && Random.nextBoolean()) return p2.first
+        return p1.first
     }
 }
