@@ -6,7 +6,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import java.time.LocalDate
 import kotlin.random.Random
 
-val daysToNewYear = LocalDate.of(2022, 12, 31).dayOfYear - LocalDate.now().dayOfYear
+val daysToNewYear get() = LocalDate.of(2022, 12, 31).dayOfYear - LocalDate.now().dayOfYear
 
 fun main() {
     val botsApi = TelegramBotsApi(DefaultBotSession()::class.java)
@@ -36,17 +36,17 @@ class SansaraAssistBot : TelegramLongPollingBot() {
 
         val text = update!!.message.text.filterNot { it == ' ' || it == '—' }
 
-        if (text.contains("Топ-10пидоров")) {
+        if (text.contains("Топ-10")) {
             val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
             val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
 
-            base.forEach { pidor ->
+            base.forEach { triple ->
                 onlyNameAndCount.forEach { string ->
-                    if (string.contains(Regex(pidor.first))) {
-                        val onlyCount = string.replace(pidor.first, "")
-                        val newCount = pidor.second + onlyCount.toInt()
-                        val i = base.indexOfFirst { pidor.first == it.first }
-                        base[i] = Triple(pidor.first, newCount, pidor.third)
+                    if (string.contains(Regex(triple.first))) {
+                        val onlyCount = string.replace(triple.first, "")
+                        val newCount = triple.second + onlyCount.toInt()
+                        val i = base.indexOfFirst { triple.first == it.first }
+                        base[i] = Triple(triple.first, newCount, triple.third)
                     }
                 }
             }
@@ -55,17 +55,16 @@ class SansaraAssistBot : TelegramLongPollingBot() {
                 .sortedBy { it.second }
                 .reversed()
 
-            val stringBuilding = StringBuilder()
-            stringBuilding.append("Осталось $daysToNewYear дней до НГ, шансы на успех:\n\n")
+            val messageStringBuilding = StringBuilder()
+            messageStringBuilding.append("Осталось $daysToNewYear дней до НГ, шансы на успех:\n\n")
             var i = 1
             newBase.forEach {
-                stringBuilding.append("${i++}. ${it.first} — ${it.second}   ${(it.third).toDouble()/10000} %\n")
+                messageStringBuilding.append("${i++}. ${it.first} — ${it.second}   ${(it.third).toDouble()/1000} %\n")
             }
 
-            val messageText = stringBuilding.toString()
             val message = SendMessage()
             message.setChatId(update.message.chatId)
-            message.text = messageText
+            message.text = messageStringBuilding.toString()
             execute(message)
         }
     }
@@ -74,7 +73,7 @@ class SansaraAssistBot : TelegramLongPollingBot() {
 
         val baseWithPercent = base.clone()
 
-        repeat(1000000) {
+        repeat(100000) {
             val winnerOfYear = getWinnerOfYear(base)
             val i = baseWithPercent.indexOfFirst { it.first == winnerOfYear}
             baseWithPercent[i] = Triple(baseWithPercent[i].first, baseWithPercent[i].second, baseWithPercent[i].third + 1)
@@ -99,3 +98,4 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         return p1.first
     }
 }
+//stringBuilding.append("\nmessage.from: ${update.message.from}\n\nme: ${me}\n\n${update}")
