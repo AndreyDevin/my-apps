@@ -91,11 +91,8 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         }
 
         baseClone.sortBy { it.second }
-
-        val p1 = baseClone.last()
-        val p2 = baseClone[baseClone.size-2]
-        if (p1.second == p2.second && Random.nextBoolean()) return p2.first
-        return p1.first
+        val winners = baseClone.filter { it.second == baseClone.last().second }
+        return winners.random().first
     }
 }
 //stringBuilding.append("\nmessage.from: ${update.message.from}\n\nme: ${me}\n\n${update}")
