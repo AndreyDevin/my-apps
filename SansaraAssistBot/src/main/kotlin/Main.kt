@@ -42,6 +42,8 @@ class SansaraAssistBot : TelegramLongPollingBot() {
                 it.replace(Regex("""^\d+|[ —.]|(раз\(а\))"""), "")//то же самое, что и выше
             }
 
+            val missingNewDataList: MutableList<String> = base.map { it.first } as MutableList<String>
+
             base.forEach { triple ->
                 onlyNameAndCount.forEach { string ->
                     if (string.contains(triple.first)) {
@@ -49,6 +51,8 @@ class SansaraAssistBot : TelegramLongPollingBot() {
                         val newCount = triple.second + onlyCount.toInt()
                         val i = base.indexOfFirst { triple.first == it.first }
                         base[i] = Triple(triple.first, newCount, triple.third)
+
+                        missingNewDataList.remove(triple.first)
                     }
                 }
             }
@@ -64,6 +68,8 @@ class SansaraAssistBot : TelegramLongPollingBot() {
                 if (it.first == "Iam32go") messageStringBuilding.append("${i++}. Красавчик Пак — ${it.second}   ${(it.third).toDouble() / 1000} %\n")
                 else messageStringBuilding.append("${i++}. ${it.first} — ${it.second}   ${(it.third).toDouble() / 1000} %\n")
             }
+            if (missingNewDataList.isNotEmpty())
+                messageStringBuilding.append("\n!!!critical extreme attention!!!\nданные не обновлены для:\n$missingNewDataList")
 
             val message = SendMessage()
             message.setChatId(update.message.chatId)
