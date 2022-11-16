@@ -22,10 +22,10 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         val base: Array<Triple<String, Int, Int>> = arrayOf(
             Triple("Geeronimo", 29, 0),
             Triple("АнтонГурьянов", 25, 0),
-            Triple("РоманЛюбушин", 25, 0),
+            Triple("Iam32go", 25, 0),
             Triple("Nazar", 24, 0),
             Triple("korgelie", 24, 0),
-            Triple("АлександрАтр", 22, 0),
+            Triple("Aleksandr_Atr", 22, 0),
             Triple("Дюк", 20, 0),
             Triple("Kapa6ac18", 20, 0),
             Triple("godhedin", 20, 0),
@@ -34,15 +34,17 @@ class SansaraAssistBot : TelegramLongPollingBot() {
             Triple("seryibelyi", 20, 0)
         )
 
-        val text = update!!.message.text.filterNot { it == ' ' || it == '—' }
+        val text = update!!.message.text
 
-        if (text.contains("Топ-10")) {
-            val listString = text.lines().filter { it.contains(Regex("""^\d""")) }
-            val onlyNameAndCount = listString.map { it.dropLast(6).drop(2).replace(".", "") }
+        if (text.contains("Топ")) {
+            val onlyNameAndCount = text.lines().map {
+                //it.replace(Regex("""^\d+|(раз\(а\))| |—|\."""), "")
+                it.replace(Regex("""^\d+|[ —.]|(раз\(а\))"""), "")//то же самое, что и выше
+            }
 
             base.forEach { triple ->
                 onlyNameAndCount.forEach { string ->
-                    if (string.contains(Regex(triple.first))) {
+                    if (string.contains(triple.first)) {
                         val onlyCount = string.replace(triple.first, "")
                         val newCount = triple.second + onlyCount.toInt()
                         val i = base.indexOfFirst { triple.first == it.first }
@@ -59,7 +61,8 @@ class SansaraAssistBot : TelegramLongPollingBot() {
             messageStringBuilding.append("Осталось $daysToNewYear дней до НГ, шансы на успех:\n\n")
             var i = 1
             newBase.forEach {
-                messageStringBuilding.append("${i++}. ${it.first} — ${it.second}   ${(it.third).toDouble()/1000} %\n")
+                if (it.first == "Iam32go") messageStringBuilding.append("${i++}. Красавчик Пак — ${it.second}   ${(it.third).toDouble() / 1000} %\n")
+                else messageStringBuilding.append("${i++}. ${it.first} — ${it.second}   ${(it.third).toDouble() / 1000} %\n")
             }
 
             val message = SendMessage()
@@ -75,8 +78,9 @@ class SansaraAssistBot : TelegramLongPollingBot() {
 
         repeat(100000) {
             val winnerOfYear = getWinnerOfYear(base)
-            val i = baseWithPercent.indexOfFirst { it.first == winnerOfYear}
-            baseWithPercent[i] = Triple(baseWithPercent[i].first, baseWithPercent[i].second, baseWithPercent[i].third + 1)
+            val i = baseWithPercent.indexOfFirst { it.first == winnerOfYear }
+            baseWithPercent[i] =
+                Triple(baseWithPercent[i].first, baseWithPercent[i].second, baseWithPercent[i].third + 1)
         }
         return baseWithPercent
     }
@@ -86,7 +90,7 @@ class SansaraAssistBot : TelegramLongPollingBot() {
         val baseClone = base.clone()
 
         repeat(daysToNewYear) {
-            val x = Random.nextInt(0, baseClone.lastIndex+1)
+            val x = Random.nextInt(0, baseClone.lastIndex + 1)
             baseClone[x] = Triple(baseClone[x].first, baseClone[x].second + 1, baseClone[x].third)
         }
 
