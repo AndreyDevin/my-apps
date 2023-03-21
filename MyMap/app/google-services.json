@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "717697220615",
+    "project_id": "markers-on-map-b468a",
+    "storage_bucket": "markers-on-map-b468a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:717697220615:android:343f4d051d30f7d70b6aa2",
+        "android_client_info": {
+          "package_name": "com.example.interestingplacesonthemap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "717697220615-71v3fpk08k1kj4vd8uq000mfk1pf626a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-1ZW6eUtbN7Lt6VQN2W0v76F_RXnfV84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "717697220615-71v3fpk08k1kj4vd8uq000mfk1pf626a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
