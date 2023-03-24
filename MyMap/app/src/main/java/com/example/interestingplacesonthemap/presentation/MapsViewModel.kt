@@ -1,7 +1,6 @@
 package com.example.interestingplacesonthemap.presentation
 
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.interestingplacesonthemap.data.Features
@@ -134,7 +133,7 @@ class MapsViewModel : ViewModel() {
     private suspend fun routeBuilding() {
         if (reversedPathToPoint.isNotEmpty()) {
 
-            for (i in reversedPathToPoint.size - 1 downTo (0)) {
+            for (i in reversedPathToPoint.size - 1 downTo (1)) {
                 if (reversedPathToPoint[i].distanceTo(reversedPathToPoint[i - 1]) + 10
                     >= myLocation.value!!.distanceTo(reversedPathToPoint[i - 1])
                 ) {
@@ -150,7 +149,8 @@ class MapsViewModel : ViewModel() {
 
             if (listFirstPointAndDistanceToIt.isNotEmpty() && !requestMoratorium) {
                 if (listFirstPointAndDistanceToIt.last().first == reversedPathToPoint.last()) {
-                    if (listFirstPointAndDistanceToIt.last().second < reversedPathToPoint.last().distanceTo(myLocation.value!!)) {
+                    if (listFirstPointAndDistanceToIt.last().second <
+                        reversedPathToPoint.last().distanceTo(myLocation.value!!)) {
                         getPathToPoint()
                         return
                     }
@@ -160,7 +160,7 @@ class MapsViewModel : ViewModel() {
                 reversedPathToPoint.last() to myLocation.value!!.distanceTo(reversedPathToPoint.last()))
         }
     }
-    //Log.d("correctedRoutePoints", "listDistanceToFirst.size = ${listDistanceToFirst.size}")
+
     companion object {
         private const val DEFAULT_RADIUS_MARKERS_SCOPE_METERS = 0
         private const val DEFAULT_SPEED_LIMIT_MIN_PER_SEC = 21
