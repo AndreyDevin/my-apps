@@ -48,6 +48,9 @@ class MapsViewModel : ViewModel() {
     var markerRequestCount = 0
     var routeRequestCount = 0
 
+    private var reversedPathToPoint = mutableListOf<Location>()
+    private val listFirstPointAndDistanceToIt = mutableListOf<Pair<Location, Float>>()
+
     init {
         viewModelScope.launch {
             myLocation.collect {
@@ -62,8 +65,9 @@ class MapsViewModel : ViewModel() {
 
         viewModelScope.launch {
             checkedMarker.collect {
-            if (it == null) _flowPathToPoint.value = null
-            else getPathToPoint()
+                reversedPathToPoint = mutableListOf()
+                if (it == null) _flowPathToPoint.value = null
+                else getPathToPoint()
             }
         }
 
@@ -95,6 +99,14 @@ class MapsViewModel : ViewModel() {
                     myLocation.value!!.latitude to myLocation.value!!.longitude,
                     checkedMarker.value!!.position.latitude to checkedMarker.value!!.position.longitude
                 )
+
+                reversedPathToPoint = mutableListOf()
+                _flowPathToPoint.value!!.routes.first().legs.first().points.reversed().forEach { point ->
+                    reversedPathToPoint.add(Location("").also {
+                        it.latitude = point.latitude
+                        it.longitude = point.longitude
+                    })
+                }
             } catch(t: Throwable) {
                 exceptionList.add(t.toString())
             }
@@ -120,36 +132,35 @@ class MapsViewModel : ViewModel() {
     //создание маршрута, по принципу: "делать новый запрос в сеть нежелательно,
     //использовать, по-возможности, ранее полученные точки маршрута"
     private suspend fun routeBuilding() {
-        if (flowPathToPoint.value != null) {
-            val nearestLocations = mutableListOf<Location>()
+        if (reversedPathToPoint.isNotEmpty()) {
+
+            for (i in reversedPathToPoint.size - 1 downTo (0)) {
+                if (reversedPathToPoint[i].distanceTo(reversedPathToPoint[i - 1]) + 10
+                    >= myLocation.value!!.distanceTo(reversedPathToPoint[i - 1])
+                ) {
+                    reversedPathToPoint.removeAt(i)
+                } else break
+            }
+
             val correctedRoutePoints = mutableListOf<Point>()
-            //берем несколько первых с начала маршрута точек и сохраняем их как объекты Location
-            flowPathToPoint.value!!.routes.first().legs.first().points.take(4).forEach { point ->
-                nearestLocations.add(Location("").also {
-                    it.latitude = point.latitude
-                    it.longitude = point.longitude
-                })
+            reversedPathToPoint.reversed().forEach {
+                correctedRoutePoints.add(Point(it.latitude, it.longitude))
             }
-            if (!requestMoratorium) {
-                //если даже ближайшая к нам точка, оказывается дальше, чем speedDependentDistance, решаем, что возможно мы ушли с маршрута и пора cделать запрос маршрута в сети
-                if (nearestLocations.isEmpty() || myLocation.value?.distanceTo(nearestLocations.first())!! > speedDependentDistance()) {
-                    getPathToPoint()
-                    return
-                }
-            }
-            //в новый список не будем брать точки, которые определим как уже пройденные
-            nearestLocations.forEach {
-                if (myLocation.value?.distanceTo(nearestLocations.last())!! > it.distanceTo(nearestLocations.last()) + 10) {
-                    correctedRoutePoints.add(Point(it.latitude, it.longitude))
-                }
-            }
-            Log.d("correctedRoutePoints", "points: ${correctedRoutePoints.size}, distanceToFirst: ${myLocation.value?.distanceTo(nearestLocations.first())!!}, distanceToLast: ${myLocation.value?.distanceTo(nearestLocations.last())!!}, dependentDistance: ${speedDependentDistance()} ")
-            //откорректированный список ближайших точек складываем с остальным маршрутом
-            correctedRoutePoints += flowPathToPoint.value!!.routes.first().legs.first().points.drop(4)
             _flowPathToPoint.value!!.routes.first().legs.first().points = correctedRoutePoints
+
+            if (listFirstPointAndDistanceToIt.isNotEmpty() && !requestMoratorium) {
+                if (listFirstPointAndDistanceToIt.last().first == reversedPathToPoint.last()) {
+                    if (listFirstPointAndDistanceToIt.last().second < reversedPathToPoint.last().distanceTo(myLocation.value!!)) {
+                        getPathToPoint()
+                        return
+                    }
+                }
+            }
+            listFirstPointAndDistanceToIt.add(
+                reversedPathToPoint.last() to myLocation.value!!.distanceTo(reversedPathToPoint.last()))
         }
     }
-
+    //Log.d("correctedRoutePoints", "listDistanceToFirst.size = ${listDistanceToFirst.size}")
     companion object {
         private const val DEFAULT_RADIUS_MARKERS_SCOPE_METERS = 0
         private const val DEFAULT_SPEED_LIMIT_MIN_PER_SEC = 21
