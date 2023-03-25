@@ -149,7 +149,7 @@ class MapsViewModel : ViewModel() {
 
             if (listFirstPointAndDistanceToIt.isNotEmpty() && !requestMoratorium) {
                 if (listFirstPointAndDistanceToIt.last().first == reversedPathToPoint.last()) {
-                    if (listFirstPointAndDistanceToIt.last().second <
+                    if (listFirstPointAndDistanceToIt.last().second + 5 <
                         reversedPathToPoint.last().distanceTo(myLocation.value!!)) {
                         getPathToPoint()
                         return
