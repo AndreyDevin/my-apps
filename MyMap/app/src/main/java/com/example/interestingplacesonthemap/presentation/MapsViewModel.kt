@@ -132,7 +132,7 @@ class MapsViewModel : ViewModel() {
     //использовать, по-возможности, ранее полученные точки маршрута"
     private suspend fun routeBuilding() {
         if (reversedPathToPoint.isNotEmpty()) {
-
+            //в цикле ищутся и удаляются уже пройденные точки
             for (i in reversedPathToPoint.size - 1 downTo (1)) {
                 if (reversedPathToPoint[i].distanceTo(reversedPathToPoint[i - 1]) + 10
                     >= myLocation.value!!.distanceTo(reversedPathToPoint[i - 1])
@@ -140,21 +140,22 @@ class MapsViewModel : ViewModel() {
                     reversedPathToPoint.removeAt(i)
                 } else break
             }
-
+            //в источнике данных подменяется список точек маршрута на откорректированный выше
             val correctedRoutePoints = mutableListOf<Point>()
             reversedPathToPoint.reversed().forEach {
                 correctedRoutePoints.add(Point(it.latitude, it.longitude))
             }
             _flowPathToPoint.value!!.routes.first().legs.first().points = correctedRoutePoints
-
-            if (listFirstPointAndDistanceToIt.isNotEmpty() && !requestMoratorium) {
-                if (listFirstPointAndDistanceToIt.last().first == reversedPathToPoint.last()) {
-                    if (listFirstPointAndDistanceToIt.last().second + 0.8f <
-                        reversedPathToPoint.last().distanceTo(myLocation.value!!)) {
-                        getPathToPoint()
-                        return
-                    }
-                }
+            //в случае соблюдения всех условий делается вывод, что пользователь ушёл с маршрута и
+            //делается запрос в сеть для уточнения данных
+            if (!requestMoratorium &&
+                listFirstPointAndDistanceToIt.isNotEmpty() &&
+                listFirstPointAndDistanceToIt.last().first == reversedPathToPoint.last() &&
+                listFirstPointAndDistanceToIt.last().second + 0.8f <
+                reversedPathToPoint.last().distanceTo(myLocation.value!!)
+            ) {
+                getPathToPoint()
+                return
             }
             listFirstPointAndDistanceToIt.add(
                 reversedPathToPoint.last() to myLocation.value!!.distanceTo(reversedPathToPoint.last()))
