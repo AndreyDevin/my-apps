@@ -18,7 +18,8 @@ import javax.inject.Inject
 
 class MapsViewModel @Inject constructor(
     val openMapsRepo: GetMarkerList,
-    val pathToPointUseCase: GetPathToPoint
+    val pathToPointUseCase: GetPathToPoint,
+    val speedingNotification: MyNotification
 ) : ViewModel() {
 
     val myLocation = MutableStateFlow<Location?>(null)
@@ -38,9 +39,6 @@ class MapsViewModel @Inject constructor(
     private val _flowPathToPoint = MutableStateFlow<PathToPointDto?>(null)
     val flowPathToPoint = _flowPathToPoint.asStateFlow()
 
-    private val _isSpeedingNotification = MutableStateFlow(false)
-    val isSpeedingNotification = _isSpeedingNotification.asStateFlow()
-
     private val _notifyAboutRequestChannel = Channel<Int>()
     val notifyAboutRequestChannel = _notifyAboutRequestChannel.receiveAsFlow()
 
@@ -56,7 +54,7 @@ class MapsViewModel @Inject constructor(
         viewModelScope.launch {
             myLocation.collect {
                 it?.let {
-                    isNeedSpeedingNotification()
+                    speedingNotification.checkSpeedOverLimit(it.speed)
                     locationCount++
                     if (!requestMoratorium) { getMarkerList() }
                     routeBuilding()
@@ -119,10 +117,6 @@ class MapsViewModel @Inject constructor(
         _notifyAboutRequestChannel.send(routeRequestCount)
     }
 
-    private fun isNeedSpeedingNotification() {
-        _isSpeedingNotification.value = myLocation.value!!.speed > DEFAULT_SPEED_LIMIT_MIN_PER_SEC
-    }
-
     fun speedDependentDistance(): Float {
         myLocation.value?.speed.also {
             if (it != null) return it * it / 3 + 50
@@ -166,6 +160,5 @@ class MapsViewModel @Inject constructor(
 
     companion object {
         private const val DEFAULT_RADIUS_MARKERS_SCOPE_METERS = 0
-        private const val DEFAULT_SPEED_LIMIT_MIN_PER_SEC = 21
     }
 }

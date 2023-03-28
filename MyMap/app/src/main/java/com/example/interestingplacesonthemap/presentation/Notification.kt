@@ -8,11 +8,23 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.interestingplacesonthemap.App
 import com.example.interestingplacesonthemap.R
+import javax.inject.Inject
 
-class MyNotification {
+class MyNotification @Inject constructor() {
     private val context: Context = App.appContext
 
-    fun createNotification() {
+    private var stateSpeedOverLimit = false
+
+    fun checkSpeedOverLimit(speed: Float) {
+        if (speed > DEFAULT_SPEED_LIMIT_MIN_PER_SEC) {
+            if (!stateSpeedOverLimit) {
+                createNotification()
+                stateSpeedOverLimit = true
+            }
+        } else if (stateSpeedOverLimit) stateSpeedOverLimit = false
+    }
+
+    private fun createNotification() {
         val notification = NotificationCompat.Builder(context, App.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.notifications_ic)
             .setContentTitle("Speed over limit!")
@@ -40,5 +52,6 @@ class MyNotification {
 
     companion object {
         private const val NOTIFICATION_ID = 1000
+        private const val DEFAULT_SPEED_LIMIT_MIN_PER_SEC = 21
     }
 }

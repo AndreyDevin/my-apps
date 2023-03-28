@@ -4,7 +4,7 @@ import com.example.interestingplacesonthemap.data.Features
 import com.example.interestingplacesonthemap.data.OpenMapsRepository
 import javax.inject.Inject
 
-class GetMarkerList @Inject constructor(val openMapsRepo: OpenMapsRepository) {
+class GetMarkerList @Inject constructor(private val openMapsRepo: OpenMapsRepository) {
     //private val openMapsRepo = OpenMapsRepository()
 
     suspend fun getMarkerList(lat: Double, lon: Double, radius: Int): List<Features> {

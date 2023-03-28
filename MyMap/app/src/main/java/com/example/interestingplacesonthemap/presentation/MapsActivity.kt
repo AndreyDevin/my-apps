@@ -30,8 +30,6 @@ class MapsActivity : AppCompatActivity() {
     lateinit var vmFactory: MapsViewModelFactory
     private lateinit var viewModel: MapsViewModel
 
-    private val speedingNotification = MyNotification()
-
     private var map: GoogleMap? = null
     private lateinit var fusedClient: FusedLocationProviderClient
     private var locationListener: LocationSource.OnLocationChangedListener? = null
@@ -166,24 +164,12 @@ class MapsActivity : AppCompatActivity() {
                 viewModel.checkedMarker.value = map?.addMarker(options)
             }
         }
-        //при необходимости создаст уведомление о превышении скорости
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isSpeedingNotification.collect {
-                    if (it) speedingNotification.createNotification()//createNotification()
-                }
-            }
-        }
         //звуковой сигнал, что был запрос к репо
         lifecycleScope.launch {
             viewModel.notifyAboutRequestChannel.collect {
                 soundOnRequest.start()
             }
         }
-        /*FirebaseMessaging.getInstance().token.addOnCompleteListener {
-            Log.d("registration token", it.result)
-//registration token: c7ujAnwaSM6CIE1i5gDOew:APA91bETY6aIP_TSpYHNMSJPdWkZ9VcJ6iyxcLlwQA0V-K78VB3EMPkuxoofNlzhA8IFl62pgXNpNR_ZLI6GrtI4YtoCq4sWOjJyTUx2j2Uqtyta4QuJ6RuUFmENyBV4C5nnJ_9zpfIQ
-        }*/
     }
 
     override fun onStart() {

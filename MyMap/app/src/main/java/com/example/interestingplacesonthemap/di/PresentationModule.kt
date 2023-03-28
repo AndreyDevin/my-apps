@@ -2,6 +2,7 @@ package com.example.interestingplacesonthemap.di
 
 import com.example.interestingplacesonthemap.presentation.MapsViewModel
 import com.example.interestingplacesonthemap.presentation.MapsViewModelFactory
+import com.example.interestingplacesonthemap.presentation.MyNotification
 import com.example.interestingplacesonthemap.useCase.GetMarkerList
 import com.example.interestingplacesonthemap.useCase.GetPathToPoint
 import dagger.Module
@@ -22,7 +23,8 @@ class PresentationModule {
     ): MapsViewModel {
         return MapsViewModel(
             openMapsRepo = openMapsRepo,
-            pathToPointUseCase = pathToPointUseCase
+            pathToPointUseCase = pathToPointUseCase,
+            speedingNotification = MyNotification()
         )
     }
 }
