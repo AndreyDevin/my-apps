@@ -5,12 +5,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import javax.inject.Inject
+
 // !!!  In file local.properties create property: OPEN_MAPS_API_KEY=your key
 const val OPEN_MAPS_KEY = BuildConfig.OPEN_MAPS_API_KEY
 
 const val BASE_URL = "http://api.opentripmap.com/0.1/"
 
-class OpenMapsRepository {
+class OpenMapsRepository @Inject constructor(){
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

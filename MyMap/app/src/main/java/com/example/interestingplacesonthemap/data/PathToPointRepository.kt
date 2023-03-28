@@ -7,12 +7,13 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import javax.inject.Inject
 
 const val TOM_TOM_KEY = BuildConfig.TOM_TOM_API_KEY
 
 const val TOM_TOM_API_URL = "https://api.tomtom.com/"
 
-class TomTomApi {
+class TomTomApi @Inject constructor(){
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(TOM_TOM_API_URL)

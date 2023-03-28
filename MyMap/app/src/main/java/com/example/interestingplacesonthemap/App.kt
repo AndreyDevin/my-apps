@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.interestingplacesonthemap.di.AppComponent
+import com.example.interestingplacesonthemap.di.DaggerAppComponent
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 //крашлитик предполагается применять только для релизных приложений.
@@ -13,8 +15,12 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 //он добавил строку в onCreate приложения
 //раз мы создали наследника Application() его надо зарегистрировать в манифесте (там добавляется android:name=".App")
 class App : Application() {
+    //это для даггера
+    lateinit var appComponent: AppComponent
     override fun onCreate() {
         super.onCreate()
+
+        appComponent = DaggerAppComponent.create()
         //благодаря этому, крашлитик будет отключен для дебаг версий, т.е. версий в процессе разработки
         //FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true) //чтобы все версии отправляли в крашлитик

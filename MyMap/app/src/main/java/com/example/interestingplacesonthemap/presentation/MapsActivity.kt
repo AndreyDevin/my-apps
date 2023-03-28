@@ -10,10 +10,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
+import com.example.interestingplacesonthemap.App
 import com.example.interestingplacesonthemap.R
 import com.example.interestingplacesonthemap.databinding.ActivityMapsBinding
 import com.google.android.gms.location.*
@@ -24,7 +24,12 @@ import kotlinx.coroutines.launch
 class MapsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMapsBinding
-    private val viewModel: MapsViewModel by viewModels()
+
+    // вместо by viewModels() сделаем по даггеровски. Сама инициализация в начале onCreate.
+    @javax.inject.Inject
+    lateinit var vmFactory: MapsViewModelFactory
+    private lateinit var viewModel: MapsViewModel
+
     private val speedingNotification = MyNotification()
 
     private var map: GoogleMap? = null
@@ -78,6 +83,10 @@ class MapsActivity : AppCompatActivity() {
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //Подключаем вьюмодель
+        (applicationContext as App).appComponent.inject(this)
+        viewModel = ViewModelProvider(this, vmFactory)[MapsViewModel::class.java]
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 

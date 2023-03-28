@@ -2,9 +2,10 @@ package com.example.interestingplacesonthemap.useCase
 
 import com.example.interestingplacesonthemap.data.PathToPointDto
 import com.example.interestingplacesonthemap.data.TomTomApi
+import javax.inject.Inject
 
-class GetPathToPoint {
-    private val tomTomApi = TomTomApi()
+class GetPathToPoint @Inject constructor(val tomTomApi: TomTomApi) {
+    //private val tomTomApi = TomTomApi()
     private var currentPath: PathToPointDto? = null
 
     suspend fun getPathToPoint(

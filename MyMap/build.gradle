@@ -1,6 +1,5 @@
 buildscript {
     ext {
-        //kotlin_version = '1.7.21'
         kotlin_version = '1.8.0'
     }
     repositories {
@@ -16,7 +15,7 @@ buildscript {
 
         // Add the dependency for the Crashlytics Gradle plugin
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.4'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
     }
 }
 

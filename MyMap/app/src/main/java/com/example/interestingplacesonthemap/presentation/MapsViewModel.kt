@@ -14,10 +14,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MapsViewModel : ViewModel() {
-    private val openMapsRepo = GetMarkerList()
-    private val pathToPointUseCase = GetPathToPoint()
+class MapsViewModel @Inject constructor(
+    val openMapsRepo: GetMarkerList,
+    val pathToPointUseCase: GetPathToPoint
+) : ViewModel() {
 
     val myLocation = MutableStateFlow<Location?>(null)
 
