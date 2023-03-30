@@ -46,6 +46,7 @@ class MapsViewModel @Inject constructor(
     var locationCount = 0
     var markerRequestCount = 0
     var routeRequestCount = 0
+    var remainingDistance = 0f
 
     private var reversedPathToPoint = mutableListOf<Location>()
     private val listFirstPointAndDistanceToIt = mutableListOf<Pair<Location, Float>>()
@@ -155,6 +156,23 @@ class MapsViewModel @Inject constructor(
             }
             listFirstPointAndDistanceToIt.add(
                 reversedPathToPoint.last() to myLocation.value!!.distanceTo(reversedPathToPoint.last()))
+
+            remainingDistanceCount(reversedPathToPoint)
+        }
+    }
+
+    private fun remainingDistanceCount(reversedPathToPoint: MutableList<Location>) {
+        viewModelScope.launch {
+            var sum = 0f
+            if (reversedPathToPoint.size > 0 && myLocation.value != null) {
+                sum += reversedPathToPoint.last().distanceTo(myLocation.value!!)
+            }
+            if (reversedPathToPoint.size > 1) {
+                for (i in reversedPathToPoint.lastIndex downTo 1) {
+                    sum += reversedPathToPoint[i].distanceTo(reversedPathToPoint[i - 1])
+                }
+            }
+            remainingDistance = sum
         }
     }
 

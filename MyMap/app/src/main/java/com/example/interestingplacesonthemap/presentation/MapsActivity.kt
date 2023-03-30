@@ -153,6 +153,7 @@ class MapsActivity : AppCompatActivity() {
             map?.setOnMapClickListener {
                 viewModel.checkedMarker.value = null
                 binding.distance.text = ""
+                binding.azimuthDistance.text = ""
             }
             //долгое нажатие создаёт "myMarker" в этой точке
             map?.setOnMapLongClickListener {
@@ -233,6 +234,7 @@ class MapsActivity : AppCompatActivity() {
                 R.string.azimuth_distance,
                 myLocation.distanceTo(targetLocation)
             )
+
             //рисуем азимут до маркера
             val azimuthOptions = PolylineOptions().width(3f).color(Color.GREEN).geodesic(true)
             azimuthOptions.add(LatLng(myLocation.latitude, myLocation.longitude))
@@ -241,14 +243,13 @@ class MapsActivity : AppCompatActivity() {
 
             //выводим длину пути и рисуем трек до маркера, если он выбран
             if (viewModel.flowPathToPoint.value != null) {
-                val routeToPoint = viewModel.flowPathToPoint.value!!.routes.first().legs.first()
 
-                binding.distance.text =
-                    getString(R.string.distance, routeToPoint.summary.lengthInMeters)
+                binding.distance.text = getString(R.string.azimuth_distance, viewModel.remainingDistance)
 
                 val routeOptions = PolylineOptions().width(9f).color(Color.BLUE).geodesic(true)
                 routeOptions.add(LatLng(myLocation.latitude, myLocation.longitude))
 
+                val routeToPoint = viewModel.flowPathToPoint.value!!.routes.first().legs.first()
                 routeToPoint.points.forEach { routeOptions.add(LatLng(it.latitude, it.longitude)) }
                 map!!.addPolyline(routeOptions)
 
