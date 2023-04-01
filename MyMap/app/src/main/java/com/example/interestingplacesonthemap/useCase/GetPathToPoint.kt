@@ -5,7 +5,6 @@ import com.example.interestingplacesonthemap.data.TomTomApi
 import javax.inject.Inject
 
 class GetPathToPoint @Inject constructor(private val tomTomApi: TomTomApi) {
-    //private val tomTomApi = TomTomApi()
     private var currentPath: PathToPointDto? = null
 
     suspend fun getPathToPoint(

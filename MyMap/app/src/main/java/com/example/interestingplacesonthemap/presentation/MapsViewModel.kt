@@ -57,7 +57,9 @@ class MapsViewModel @Inject constructor(
                 it?.let {
                     speedingNotification.checkSpeedOverLimit(it.speed)
                     locationCount++
-                    if (!requestMoratorium) { getMarkerList() }
+                    if (!requestMoratorium) {
+                        getMarkerList()
+                    }
                     routeBuilding()
                 }
             }
@@ -91,25 +93,24 @@ class MapsViewModel @Inject constructor(
 
     private suspend fun getPathToPoint() {
         if (myLocation.value != null && checkedMarker.value != null) {
+            momentLatestUpdate = myLocation.value!! to System.currentTimeMillis()
+            notifyAboutRequest()
             try {
-                momentLatestUpdate = myLocation.value!! to System.currentTimeMillis()
-                notifyAboutRequest()
-
                 _flowPathToPoint.value = pathToPointUseCase.getPathToPoint(
                     myLocation.value!!.latitude to myLocation.value!!.longitude,
                     checkedMarker.value!!.position.latitude to checkedMarker.value!!.position.longitude
                 )
-
-                reversedPathToPoint = mutableListOf()
-                _flowPathToPoint.value!!.routes.first().legs.first().points.reversed().forEach { point ->
+            } catch (t: Throwable) {
+                exceptionList.add(t.toString())
+            }
+            reversedPathToPoint = mutableListOf()
+            _flowPathToPoint.value!!.routes.first().legs.first().points.reversed()
+                .forEach { point ->
                     reversedPathToPoint.add(Location("").also {
                         it.latitude = point.latitude
                         it.longitude = point.longitude
                     })
                 }
-            } catch(t: Throwable) {
-                exceptionList.add(t.toString())
-            }
         } else _flowPathToPoint.value = null
     }
 
@@ -137,12 +138,6 @@ class MapsViewModel @Inject constructor(
                     reversedPathToPoint.removeAt(i)
                 } else break
             }
-            //в источнике данных подменяется список точек маршрута на откорректированный выше
-            val correctedRoutePoints = mutableListOf<Point>()
-            reversedPathToPoint.reversed().forEach {
-                correctedRoutePoints.add(Point(it.latitude, it.longitude))
-            }
-            _flowPathToPoint.value!!.routes.first().legs.first().points = correctedRoutePoints
             //в случае соблюдения всех условий делается вывод, что пользователь ушёл с маршрута и
             //делается запрос в сеть для уточнения данных
             if (!requestMoratorium &&
@@ -154,26 +149,32 @@ class MapsViewModel @Inject constructor(
                 getPathToPoint()
                 return
             }
-            listFirstPointAndDistanceToIt.add(
-                reversedPathToPoint.last() to myLocation.value!!.distanceTo(reversedPathToPoint.last()))
-
+            //рассчитывается длина пути
             remainingDistanceCount(reversedPathToPoint)
+            //в источнике данных подменяется список точек маршрута на откорректированный выше
+            val correctedRoutePoints = mutableListOf<Point>()
+            reversedPathToPoint.reversed().forEach {
+                correctedRoutePoints.add(Point(it.latitude, it.longitude))
+            }
+            _flowPathToPoint.value!!.routes.first().legs.first().points = correctedRoutePoints
+
+            listFirstPointAndDistanceToIt.add(
+                reversedPathToPoint.last() to myLocation.value!!.distanceTo(reversedPathToPoint.last())
+            )
         }
     }
 
     private fun remainingDistanceCount(reversedPathToPoint: MutableList<Location>) {
-        viewModelScope.launch {
-            var sum = 0f
-            if (reversedPathToPoint.size > 0 && myLocation.value != null) {
-                sum += reversedPathToPoint.last().distanceTo(myLocation.value!!)
-            }
-            if (reversedPathToPoint.size > 1) {
-                for (i in reversedPathToPoint.lastIndex downTo 1) {
-                    sum += reversedPathToPoint[i].distanceTo(reversedPathToPoint[i - 1])
-                }
-            }
-            remainingDistance = sum
+        var sum = 0f
+        if (reversedPathToPoint.size > 0 && myLocation.value != null) {
+            sum += reversedPathToPoint.last().distanceTo(myLocation.value!!)
         }
+        if (reversedPathToPoint.size > 1) {
+            for (i in reversedPathToPoint.lastIndex downTo 1) {
+                sum += reversedPathToPoint[i].distanceTo(reversedPathToPoint[i - 1])
+            }
+        }
+        remainingDistance = sum
     }
 
     companion object {
