@@ -1,7 +1,6 @@
 package com.example.scorer
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,8 +24,8 @@ class MainViewModel(
     private val database: DailyDataDao,
     private val timer: Timer
 ) : ViewModel() {
-    private val nowDayOfYear
 
+    private val nowDayOfYear
     get() = LocalDate.now().year * 1000 + LocalDate.now().dayOfYear
 
     private val allDay: StateFlow<List<Day>> = this.database.getAll()
@@ -54,7 +53,6 @@ class MainViewModel(
                 listOfDurationByMonth.value = groupByMountList.map { (mount, days) ->
                     mount.name to days.sumOf { day -> day.second }
                 }
-                Log.d("timer_state", listOfDurationByMonth.value.toString())
             }
         }
         viewModelScope.launch {
@@ -66,7 +64,7 @@ class MainViewModel(
         var itemDay = LocalDate.now()
         var weekCount = 0
         val list = mutableListOf(mutableMapOf<Long, Long>())
-        val deyKey = { LocalDate.now().year * 1000 + itemDay.dayOfYear.toLong() }
+        val deyKey = { itemDay.year * 1000 + itemDay.dayOfYear.toLong() }
 
         while (itemDay.isAfter(LocalDate.of(2022, 12, 31))) {
             allDay.value
@@ -148,4 +146,3 @@ class MainViewModel(
         }
     }
 }
-//Log.d("timer_state", timer.isOn.toString())

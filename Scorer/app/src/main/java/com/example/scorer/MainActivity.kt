@@ -113,9 +113,9 @@ fun MainScreen(
                     Column {
                         durationByMonth.value!!.asReversed().forEach { (month, durations) ->
                             Text(
-                                text = "$month\n${minToTimeFormat(durations/60)}",
+                                text = "  ${month.take(3)}\n${minToTimeFormat(durations/60)}",
                                 modifier = Modifier
-                                    .size(40.dp, 60.dp)
+                                    .size(41.dp, 53.dp)
                                     .padding(4.dp)
                                     .background(Color.Yellow),
                                 fontSize = 12.sp
