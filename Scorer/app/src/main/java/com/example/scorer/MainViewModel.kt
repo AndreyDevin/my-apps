@@ -37,22 +37,13 @@ class MainViewModel(
 
     val timerState = timer.isOn.asStateFlow()
     val destination = timer.destination.asStateFlow()
-    val allWeekList = MutableStateFlow<List<Map<Long, Long>>?>(null)
     var stateInitDialog = MutableStateFlow(false)
-    val listOfDurationByMonth = MutableStateFlow<List<Pair<String, Long>>?>(null)
+    val uiDataFlow = MutableStateFlow<List<UiDataObject>?>(null)
 
     init {
         viewModelScope.launch {
             allDay.collect {
-                if (it.isNotEmpty()) allWeekList.value = getAllWeek()
-
-                val groupByMountList = it
-                    .map { dbo -> LocalDate.parse(dbo.date.toString()) to (dbo.durations ?: 0) }
-                    .groupBy { day -> day.first.month }
-
-                listOfDurationByMonth.value = groupByMountList.map { (mount, days) ->
-                    mount.name to days.sumOf { day -> day.second }
-                }
+                if (it.isNotEmpty()) uiDataFlow.value = createDataObjectsForUI()
             }
         }
         viewModelScope.launch {
@@ -60,27 +51,51 @@ class MainViewModel(
         }
     }
 
-    private fun getAllWeek(): MutableList<MutableMap<Long, Long>> {
+    private fun createDataObjectsForUI(): List<UiDataObject> {
+
         var itemDay = LocalDate.now()
         var weekCount = 0
-        val list = mutableListOf(mutableMapOf<Long, Long>())
-        val deyKey = { itemDay.year * 1000 + itemDay.dayOfYear.toLong() }
+        var weeksList = mutableListOf(mutableMapOf<Long, Long>())
+        val dayKey = { itemDay.year * 1000 + itemDay.dayOfYear.toLong() }
+        var monthsList: MutableList<Pair<String, Long>> = mutableListOf()
+        val returnList: MutableList<UiDataObject> = mutableListOf()
 
         while (itemDay.isAfter(LocalDate.of(2022, 12, 31))) {
             allDay.value
-                .find { it.dayKey == deyKey() }
+                .find { it.dayKey == dayKey() }
                 .also {
-                    if (it != null) list[weekCount][deyKey()] = (it.durations ?: 0)
-                    else list[weekCount][deyKey()] = 0
+                    if (it != null) {
+                        weeksList[weekCount][dayKey()] = (it.durations ?: 0)
+                        monthsList.add(LocalDate.parse(it.date.toString()).month.name to (it.durations ?: 0))
+                    }
+                    else weeksList[weekCount][dayKey()] = 0
                 }
             if (itemDay.dayOfWeek.value == 1) {
                 weekCount++
-                list.add(mutableMapOf())
+                weeksList.add(mutableMapOf())
             }
+            itemDay.minusDays(1).year.also { it ->
+                if (itemDay.year != it) {
+                    returnList.add(
+                        UiDataObject(
+                            year = itemDay.year.toString(),
+                            weekList = weeksList,
+                            monthList = monthsList
+                                .groupBy({ it.first }, { it.second })
+                                .mapValues { (_, v) -> v.sum() }
+                        )
+                    )
+                    monthsList = mutableListOf()
+                    weekCount = 0
+                    weeksList = mutableListOf(mutableMapOf())
+                }
+            }
+
             itemDay = itemDay.minusDays(1)
         }
-        return list
+        return returnList
     }
+
     fun onTimer() {
         timer.isOn.value = !timer.isOn.value
 

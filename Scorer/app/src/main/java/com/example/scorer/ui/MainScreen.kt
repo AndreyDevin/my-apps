@@ -1,48 +1,39 @@
-package com.example.scorer
+package com.example.scorer.ui
 
 import android.os.Build
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.example.scorer.ui.MainScreen
-import com.example.scorer.ui.theme.ScorerTheme
-import com.example.scorer.useCase.Timer
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.scorer.MainViewModel
+import com.example.scorer.UiDataObject
 
-@RequiresApi(Build.VERSION_CODES.O)
-class MainActivity : ComponentActivity() {
-    private val viewModel: MainViewModel by viewModels {
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val userDao = (application as App).db.dailyDataDao()
-                val timer = Timer()
-                return MainViewModel(userDao, timer) as T
-            }
-        }
-    }
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            ScorerTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    MainScreen(viewModel)
-                }
-            }
-        }
-    }
-}
-/*
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(
@@ -50,9 +41,8 @@ fun MainScreen(
 ) {
     val timerState = viewModel.timerState.collectAsStateWithLifecycle()
     val destination = viewModel.destination.collectAsStateWithLifecycle()
-    val allWeeks = viewModel.allWeekList.collectAsStateWithLifecycle()
     val stateInitDialog = viewModel.stateInitDialog.collectAsStateWithLifecycle()
-    val durationByMonth = viewModel.listOfDurationByMonth.collectAsStateWithLifecycle()
+    val uiDataObject = viewModel.uiDataFlow.collectAsStateWithLifecycle()
 
     if (stateInitDialog.value) InitDialog(
         dismiss = { viewModel.closeInitDialog(false) },
@@ -81,27 +71,9 @@ fun MainScreen(
         ) {
             Text(text = if (!timerState.value) "Start" else "Stop")
         }
-        Row {
-            if (durationByMonth.value != null) {
-                    Column {
-                        durationByMonth.value!!.asReversed().forEach { (month, durations) ->
-                            Text(
-                                text = "  ${month.take(3)}\n${minToTimeFormat(durations/60)}",
-                                modifier = Modifier
-                                    .size(41.dp, 53.dp)
-                                    .padding(4.dp)
-                                    .background(Color.Yellow),
-                                fontSize = 12.sp
-                            )
-                        }
-                    }
-                }
-            if (allWeeks.value != null) {
-                Column {
-                       allWeeks.value!!.forEach {
-                           Year( listWeeks = listOf(it), viewModel = viewModel )
-                       }
-                }
+        uiDataObject.value.let { yearList ->
+            yearList?.forEach { year ->
+                Year(data = year, viewModel = viewModel)
             }
         }
     }
@@ -109,23 +81,27 @@ fun MainScreen(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Year(listWeeks: List<Map.Entry<String, List<Map<Long, Long>>>>, viewModel: MainViewModel) {
-
-
-
-    //Mounts(durationByMonth = )
-
-    listWeeks.forEach { year ->
-        YearSpacer(text = year.key)
-        year.value.forEach { week ->
-            Week(week = week.map { it.key to it.value }, viewModel = viewModel)
+fun Year(
+    data: UiDataObject,
+    viewModel: MainViewModel
+) {
+    YearSpacer(text = data.year)
+    Row {
+        Mounts(durationByMonth = data.monthList)
+        Column {
+            data.weekList.forEach { week ->
+                Week(week = week.map { it.key to it.value }, viewModel = viewModel)
+            }
         }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Week(week: List<Pair<Long, Long>>, viewModel: MainViewModel) {
+fun Week(
+    week: List<Pair<Long, Long>>,
+    viewModel: MainViewModel
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -248,7 +224,8 @@ fun InitDialog(
                 .fillMaxWidth()
                 .wrapContentSize(Alignment.Center),
             text = "previous session is not closed"
-        )},
+        )
+        },
         onDismissRequest = dismiss,
         buttons = {
             Row(
@@ -276,17 +253,16 @@ fun YearSpacer(text: String) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = Color.Cyan)
-        ,
+            .background(color = Color.Cyan),
         text = text,
         color = Color.White
     )
 }
 
 @Composable
-fun Mounts(durationByMonth: List<Pair<String, Long>>) {
+fun Mounts(durationByMonth: Map<String, Long>) {
     Column {
-        durationByMonth.asReversed().forEach { (month, durations) ->
+        durationByMonth.forEach { (month, durations) ->
             Text(
                 text = "  ${month.take(3)}\n${minToTimeFormat(durations/60)}",
                 modifier = Modifier
@@ -297,12 +273,4 @@ fun Mounts(durationByMonth: List<Pair<String, Long>>) {
             )
         }
     }
-}*/
-/*val localDateTimeList = db.value.map {
-    LocalDateTime
-        .ofInstant(
-            Instant.ofEpochMilli(it.dateInMillis),
-            ZoneId.systemDefault()
-        ).plusHours(3)
-}*/
-//    Toast.makeText(App.appContext, archiveYears.toString(), Toast.LENGTH_SHORT).show()
+}
