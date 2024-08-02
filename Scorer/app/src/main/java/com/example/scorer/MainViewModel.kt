@@ -74,23 +74,20 @@ class MainViewModel(
                 weekCount++
                 weeksList.add(mutableMapOf())
             }
-            itemDay.minusDays(1).year.also { it ->
-                if (itemDay.year != it) {
-                    returnList.add(
-                        UiDataObject(
-                            year = itemDay.year.toString(),
-                            weekList = weeksList,
-                            monthList = monthsList
-                                .groupBy({ it.first }, { it.second })
-                                .mapValues { (_, v) -> v.sum() }
-                        )
+            if (itemDay.year != itemDay.minusDays(1).year) {
+                returnList.add(
+                    UiDataObject(
+                        year = itemDay.year.toString(),
+                        weekList = weeksList,
+                        monthList = monthsList
+                            .groupBy({ it.first }, { it.second })
+                            .mapValues { (_, v) -> v.sum() }
                     )
-                    monthsList = mutableListOf()
-                    weekCount = 0
-                    weeksList = mutableListOf(mutableMapOf())
-                }
+                )
+                monthsList = mutableListOf()
+                weekCount = 0
+                weeksList = mutableListOf(mutableMapOf())
             }
-
             itemDay = itemDay.minusDays(1)
         }
         return returnList
