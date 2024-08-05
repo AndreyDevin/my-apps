@@ -70,24 +70,28 @@ class MainViewModel(
                     }
                     else weeksList[weekCount][dayKey()] = 0
                 }
+
             if (itemDay.dayOfWeek.value == 1) {
                 weekCount++
                 weeksList.add(mutableMapOf())
             }
+            //Определяем не закончился ли год, если закончился, то сохраняем экземпляр UiDataObject,
+            //т.е. один год, в список экземпляров (годов)
             if (itemDay.year != itemDay.minusDays(1).year) {
                 returnList.add(
                     UiDataObject(
                         year = itemDay.year.toString(),
                         weekList = weeksList,
                         monthList = monthsList
-                            .groupBy({ it.first }, { it.second })
-                            .mapValues { (_, v) -> v.sum() }
+                            .groupBy({ it.first }, { it.second }) //преобразование List<Pair> в Map<first, List<second>>
+                            .mapValues { it.value.sum() } //все значения List<second> суммируются
                     )
                 )
                 monthsList = mutableListOf()
                 weekCount = 0
                 weeksList = mutableListOf(mutableMapOf())
             }
+
             itemDay = itemDay.minusDays(1)
         }
         return returnList
