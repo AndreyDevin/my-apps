@@ -85,7 +85,7 @@ fun Year(
     data: UiDataObject,
     viewModel: MainViewModel
 ) {
-    YearSpacer(text = data.year)
+    YearSpacer(text1 = data.year, text2 = data.yearTotalDuration)
     Row {
         Mounts(durationByMonth = data.monthList)
         Column {
@@ -170,7 +170,7 @@ fun Day(
                     }
                 }
             )
-            .clickable { if (value >= 0) dialogOpen = !dialogOpen },
+            .clickable { if (key > 0) dialogOpen = !dialogOpen },
         fontSize = 12.sp
     )
 }
@@ -188,6 +188,9 @@ fun ItemDialog(
         buttons = {
             Row {
                 when {
+                    key > 0 && value < 0 -> TextButton(onClick = {viewModel.deleteDay(key)}) {
+                        Text(text = "delete bug")
+                    }
                     value > 0 -> {
                         TextButton(onClick = {viewModel.updateDay(key, 600)}) {
                             Text(text = "+10m")
@@ -249,14 +252,26 @@ fun minToTimeFormat(min: Long): String {
 }
 
 @Composable
-fun YearSpacer(text: String) {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = Color.Cyan),
-        text = text,
-        color = Color.White
-    )
+fun YearSpacer(text1: String, text2: String) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .background(color = Color.Cyan)
+    ) {
+        Text(
+            text = text1,
+            color = Color.White
+        )
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterVertically)
+                .wrapContentWidth(Alignment.End),
+            text = text2,
+            color = Color.White,
+            fontSize = 12.sp
+        )
+    }
+
 }
 
 @Composable

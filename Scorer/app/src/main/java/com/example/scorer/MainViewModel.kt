@@ -59,6 +59,7 @@ class MainViewModel(
         val dayKey = { itemDay.year * 1000 + itemDay.dayOfYear.toLong() }
         var monthsList: MutableList<Pair<String, Long>> = mutableListOf()
         val returnList: MutableList<UiDataObject> = mutableListOf()
+        var sum = 0L
 
         while (itemDay.isAfter(LocalDate.of(2022, 12, 31))) {
             allDay.value
@@ -67,6 +68,7 @@ class MainViewModel(
                     if (it != null) {
                         weeksList[weekCount][dayKey()] = (it.durations ?: 0)
                         monthsList.add(LocalDate.parse(it.date.toString()).month.name to (it.durations ?: 0))
+                        sum += it.durations ?: 0
                     }
                     else weeksList[weekCount][dayKey()] = 0
                 }
@@ -81,6 +83,7 @@ class MainViewModel(
                 returnList.add(
                     UiDataObject(
                         year = itemDay.year.toString(),
+                        yearTotalDuration = toStringFormat(sum/60),
                         weekList = weeksList,
                         monthList = monthsList
                             .groupBy({ it.first }, { it.second }) //преобразование List<Pair> в Map<first, List<second>>
@@ -89,6 +92,7 @@ class MainViewModel(
                 )
                 monthsList = mutableListOf()
                 weekCount = 0
+                sum = 0L
                 weeksList = mutableListOf(mutableMapOf())
             }
 
@@ -160,5 +164,9 @@ class MainViewModel(
                 stateInitDialog.value = !timer.sharedPrefIsEmpty()
             }
         }
+    }
+
+    private fun toStringFormat(value: Long): String {
+        return "${value/60} h  ${if (value%60 < 1) "00" else (value%60)} m"
     }
 }
