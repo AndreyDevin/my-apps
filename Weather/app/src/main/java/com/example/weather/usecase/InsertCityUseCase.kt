@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class InsertCityUseCase @Inject constructor(private val cityRepo: CityRepo) {
 
-    fun execute(id: String, latitude: Double, longitude: Double) {
+    operator fun invoke(id: String, latitude: Double, longitude: Double) {
         CoroutineScope(Dispatchers.IO).launch {
             if (!cityRepo.exists(id)) cityRepo.insertCity(
                 City(

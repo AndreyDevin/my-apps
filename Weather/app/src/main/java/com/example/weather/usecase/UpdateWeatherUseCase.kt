@@ -14,7 +14,7 @@ class UpdateWeatherUseCase @Inject constructor(
     private val api: APIRepo,
     private val weatherRepo: WeatherRepo
 ) {
-    suspend fun execute(
+    suspend operator fun invoke(
         cityId: String,
         lat: Double,
         lon: Double,

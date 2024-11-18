@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class GetAllSavedCitiesUseCase @Inject constructor(private val cityRepo: CityRepo) {
 
-    fun execute(scope: CoroutineScope) = cityRepo.getAll().map { listCity ->
+    operator fun invoke(scope: CoroutineScope) = cityRepo.getAll().map { listCity ->
             listCity.map { city -> CityDTO(city.cityId, city.name, city.lat, city.lon) }
         }.stateIn(
             scope = scope,

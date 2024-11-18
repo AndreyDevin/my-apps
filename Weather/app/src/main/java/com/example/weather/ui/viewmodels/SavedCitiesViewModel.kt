@@ -11,5 +11,5 @@ class SavedCitiesViewModel @Inject constructor(
     getAllSavedCitiesUseCase: GetAllSavedCitiesUseCase
 ): ViewModel() {
 
-    val allCity = getAllSavedCitiesUseCase.execute(viewModelScope)
+    val allCity = getAllSavedCitiesUseCase(viewModelScope)
 }

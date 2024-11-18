@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class DeleteCityUseCase @Inject constructor(private val cityRepo: CityRepo) {
 
-    fun execute(cityId: String) {
+    operator fun invoke(cityId: String) {
         CoroutineScope(Dispatchers.IO).launch {
             cityRepo.deleteCity(cityId)
         }

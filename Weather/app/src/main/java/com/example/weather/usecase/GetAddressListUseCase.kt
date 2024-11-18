@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class GetAddressListUseCase @Inject constructor(private val geocoderUtil: GeocoderUtil) {
 
-    suspend fun execute(string: String): List<Address> {
+    suspend operator fun invoke(string: String): List<Address> {
         return CoroutineScope(Dispatchers.IO).async {
             geocoderUtil.getLocation(string)
         }.await()

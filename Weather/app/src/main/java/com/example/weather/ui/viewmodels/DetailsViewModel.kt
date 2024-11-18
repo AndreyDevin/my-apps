@@ -29,25 +29,25 @@ class DetailsViewModel @Inject constructor(
 
     fun getWeather(cityId: String) {
         viewModelScope.launch {
-            _cityWithWeather.value = getWeatherUseCase.execute(cityId)
+            _cityWithWeather.value = getWeatherUseCase(cityId)
         }
     }
 
     fun refresh(cityId: String, lat: Double, lon: Double) {
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch {
-                updateWeatherUseCase.execute(cityId, lat, lon) {
+                updateWeatherUseCase(cityId, lat, lon) {
                     //в случае ошибки апи, в лямбде можно реализовать failureCallback (не реализовано)
                     message -> Log.d("MyTag", message)
                 }
-                _cityWithWeather.value = getWeatherUseCase.execute(cityId)
+                _cityWithWeather.value = getWeatherUseCase(cityId)
             }
         }
     }
 
     fun deleteWeather() {
             cityWithWeather.value?.also { cityWithWeather ->
-                cityWithWeather.weather?.forEach { deleteWeatherUseCase.execute(it.cityId) }
+                cityWithWeather.weather?.forEach { deleteWeatherUseCase(it.cityId) }
                 getWeather(cityWithWeather.city.cityId)
             }
     }
@@ -55,8 +55,8 @@ class DetailsViewModel @Inject constructor(
     fun delCity(cityId: String) {
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch {
-                deleteCityUseCase.execute(cityId)
-                cityWithWeather.value?.weather?.forEach { deleteWeatherUseCase.execute(it.cityId) }
+                deleteCityUseCase(cityId)
+                cityWithWeather.value?.weather?.forEach { deleteWeatherUseCase(it.cityId) }
             }.join()
         }
     }

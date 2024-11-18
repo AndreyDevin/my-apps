@@ -33,7 +33,7 @@ class SearchViewModel @Inject constructor(
     fun searchAddress(text: String) {
         sharedPrefRepo.saveString(text)
         _searchText.value = sharedPrefRepo.getString()
-        viewModelScope.launch(Dispatchers.IO) { _listAddress.value = getAddressListUseCase.execute(text) }
+        viewModelScope.launch(Dispatchers.IO) { _listAddress.value = getAddressListUseCase(text) }
     }
 
     fun getWeatherData(address: Address, callback: (String) -> Unit) {
@@ -45,8 +45,8 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
 
             CoroutineScope(Dispatchers.IO).launch {
-                insertCityUseCase.execute(cityId, address.latitude, address.longitude)
-                updateWeatherUseCase.execute(cityId, address.latitude, address.longitude) {
+                insertCityUseCase(cityId, address.latitude, address.longitude)
+                updateWeatherUseCase(cityId, address.latitude, address.longitude) {
                     //в случае ошибки апи, в лямбде можно реализовать failureCallback (не реализовано)
                     message -> Log.d("MyTag", message)
                 }

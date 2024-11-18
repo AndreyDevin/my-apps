@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class DeleteWeatherUseCase @Inject constructor(private val weatherRepo: WeatherRepo) {
 
-    fun execute(cityId: String) {
+    operator fun invoke(cityId: String) {
         CoroutineScope(Dispatchers.IO).launch {
             weatherRepo.deleteWeather(cityId)
         }

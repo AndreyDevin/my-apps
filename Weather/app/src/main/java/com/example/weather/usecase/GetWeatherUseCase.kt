@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class GetWeatherUseCase @Inject constructor(private val weatherRepo: WeatherRepo) {
 
-    suspend fun execute(cityId: String): CityWithWeatherDTO? {
+    suspend operator fun invoke(cityId: String): CityWithWeatherDTO? {
         val weather =
             CoroutineScope(Dispatchers.IO).async { weatherRepo.getWeather(cityId) }.await()
 
